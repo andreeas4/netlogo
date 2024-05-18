@@ -14,7 +14,7 @@ turtles-own [
   speed]
 
 globals[
-  store
+  stores
   houses
 ]
 breed [bikers biker]
