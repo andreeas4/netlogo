@@ -34,21 +34,6 @@ to setup
   set-streets
 
 end
-to create-bikers-on-streets [num-agents]
-  repeat num-agents [
-    ; Get a random patch with streets = 1
-    let candidate-patches patches with [streets = 1]
-    let random-patch one-of candidate-patches
-    if random-patch != nobody [
-    ; Create a turtle on the selected patch
-    create-bikers 1 [
-      move-to random-patch
-    ]]
-  ]
-end
-
-
-
 
 
 to set-turtles
@@ -114,22 +99,6 @@ end
 
 
 
-to set-traffic
-  ask turtles [
-    let current-patch patch-here
-    ifelse [streets] of current-patch = 1 [
-      ; Increment traffic count for patches with streets = 1 and turtles
-      ask current-patch [
-        set traffic traffic + 1
-      ]
-    ] [
-      ; Reset traffic count for patches without streets = 1 or no turtles
-      ask current-patch [
-        set traffic 0
-      ]
-    ]
-  ]
-end
 
 
 
@@ -196,6 +165,11 @@ end
        set pcolor blue
        set houses (fput self houses)
      end
+
+
+
+
+
 
 
 
