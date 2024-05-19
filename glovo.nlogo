@@ -9,11 +9,10 @@ patches-own [
 ]
 
 turtles-own [
-  horizontal
-  vertical
-  speed]
+  work]
 
 globals[
+  assigned-clients
   stores
   houses
 ]
@@ -28,7 +27,7 @@ to setup
   create-bikers 10 [setxy random-xcor random-ycor]
   create-cars 10 [setxy random-xcor random-ycor]
   create-trucks 10 [setxy random-xcor random-ycor]
-
+  set assigned-clients []
   reset-ticks
   set-turtles
   set-patches
@@ -58,7 +57,7 @@ to set-turtles
     set size 3
     set shape "deliver"
       set color yellow
-    set speed 1]
+    set work 0]
     if breed = cars [
       set size 2
       set shape "car"
@@ -67,7 +66,7 @@ to set-turtles
       set size 3
       set shape "truckg"
       set color yellow
-    set speed 3]
+    set work 0]
   ]
 end
 to set-patches
@@ -157,12 +156,6 @@ end
 
 ;end
 
-to go-to-store
-  let nearest-store min-one-of patches with [stores] [distance myself]
-  if nearest-store != nobody [
-    move-to nearest-store
-  ]
-end
 
 to check-store-placement
   if mouse-down?
@@ -182,6 +175,7 @@ end
        set pcolor red
        set stores (fput self stores)
      end
+
 
 to check-house-placement
   if mouse-down?
@@ -228,11 +222,13 @@ to move-to-streets
 end
 
 to start
-
   move-to-streets
-  ma-sa
+  drive
+  delivery
+ 
+  tick
 end
-to ma-sa
+to drive
   ask turtles [
     if any? patches with [pcolor = black] [
       set heading towards one-of patches with [pcolor = black]
@@ -240,5 +236,42 @@ to ma-sa
     ]
   ]
 end
+
+to delivery
+  ask bikers [
+    go-to-store
+    let current-patch patch-here
+    if [pcolor] of current-patch = red [
+      set work work + 1
+    
+    ]
+  ]
+  ask trucks [
+    go-to-store
+    let current-patch patch-here
+    if [pcolor] of current-patch = red [
+      set work work + 1
+    
+    ]
+  ]
+  
+end
+
+
+to go-to-store
+  ; Fiecare agent găsește cel mai apropiat magazin și se deplasează către el
+  let nearest-store min-one-of patches with [pcolor = red] [distance myself]
+  if nearest-store != nobody [
+    move-to nearest-store
+    ; Căutăm cel mai apropiat patch negru
+    let nearest-black-patch min-one-of neighbors4 with [pcolor = black] [distance nearest-store]
+    if nearest-black-patch != nobody [
+      ; Ne deplasăm către cel mai apropiat patch negru
+      move-to nearest-black-patch
+    ]
+  ]
+end
+
+
 
 
