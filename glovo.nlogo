@@ -246,6 +246,128 @@ to go-to-store
   ]
 end
 
+to go-to-store
+  ; Agenții trucks merg la magazin doar dacă au work setat la 0
+  ask trucks with [work = 0] [
+    let nearest-store min-one-of patches with [pcolor = red] [distance myself]
+    if nearest-store != nobody [
+      if patch-here != nearest-store [
+        move-to nearest-store
+        ; Verificăm dacă am ajuns la magazin
+        if patch-here = nearest-store [
+          set work 1
+        ]
+        ; Dacă nu am ajuns la magazin, căutăm cel mai apropiat patch negru
+        let nearest-black-patch min-one-of neighbors4 with [pcolor = black] [distance nearest-store]
+        if nearest-black-patch != nobody and patch-here != nearest-black-patch [
+          ; Ne deplasăm către cel mai apropiat patch negru
+          move-to nearest-black-patch
+        ]
+      ]
+    ]
+  ]
+  ; Agenții bikers merg la magazin doar dacă au work setat la 0
+  ask bikers with [work = 0] [
+    let nearest-store min-one-of patches with [pcolor = red] [distance myself]
+    if nearest-store != nobody [
+      if patch-here != nearest-store [
+        move-to nearest-store
+        ; Verificăm dacă am ajuns la magazin
+        if patch-here = nearest-store [
+          set work 1
+        ]
+        ; Dacă nu am ajuns la magazin, căutăm cel mai apropiat patch negru
+        let nearest-black-patch min-one-of neighbors4 with [pcolor = black] [distance nearest-store]
+        if nearest-black-patch != nobody and patch-here != nearest-black-patch [
+          ; Ne deplasăm către cel mai apropiat patch negru
+          move-to nearest-black-patch
+        ]
+      ]
+    ]
+  ]
+end
 
+to go-to-client
+  ; Agenții trucks cu work 1 livrează la clienți
+  ask trucks with [work = 1] [
+    let nearest-client min-one-of patches with [pcolor = blue] [distance myself]
+    if nearest-client != nobody [
+      if patch-here != nearest-client [
+        move-to nearest-client
+        ; Verificăm dacă am ajuns la client
+        if patch-here = nearest-client [
+          ; Resetăm work pentru a simula finalizarea livrării
+          set work 0
+        ]
+        ; Dacă nu am ajuns la client, căutăm cel mai apropiat patch negru
+        let nearest-black-patch min-one-of neighbors4 with [pcolor = black] [distance nearest-client]
+        if nearest-black-patch != nobody and patch-here != nearest-black-patch [
+          ; Ne deplasăm către cel mai apropiat patch negru
+          move-to nearest-black-patch
+        ]
+      ]
+    ]
+  ]
+  ; Agenții bikers cu work 1 livrează la clienți
+  ask bikers with [work = 1] [
+    let nearest-client min-one-of patches with [pcolor = blue] [distance myself]
+    if nearest-client != nobody [
+      if patch-here != nearest-client [
+        move-to nearest-client
+        ; Verificăm dacă am ajuns la client
+        if patch-here = nearest-client [
+          ; Resetăm work pentru a simula finalizarea livrării
+          set work 0
+        ]
+        ; Dacă nu am ajuns la client, căutăm cel mai apropiat patch negru
+        let nearest-black-patch min-one-of neighbors4 with [pcolor = black] [distance nearest-client]
+        if nearest-black-patch != nobody and patch-here != nearest-black-patch [
+          ; Ne deplasăm către cel mai apropiat patch negru
+          move-to nearest-black-patch
+        ]
+      ]
+    ]
+  ]
+end
+
+to delivery
+  ask bikers [
+    if work = 0 [
+      go-to-store
+    ]
+    if work = 1 [
+      go-to-client
+    ]
+  ]
+  ask trucks [
+    if work = 0 [
+      go-to-store
+    ]
+    if work = 1 [
+      go-to-client
+    ]
+  ]
+end
+
+to drive-delivery
+  ask trucks [
+    if any? patches with [pcolor = black] [
+      let target one-of patches with [pcolor = black]
+      if target != patch-here [
+        set heading towards target
+        fd 1
+      ]
+    ]
+  ]
+  ask bikers [
+    if any? patches with [pcolor = black] [
+      let target one-of patches with [pcolor = black]
+      if target != patch-here [
+        set heading towards target
+        fd 1
+      ]
+    ]
+  ]
+end
 
 
